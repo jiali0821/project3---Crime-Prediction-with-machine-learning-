@@ -97,7 +97,7 @@ var loc_descript = ['STREET', 'RESIDENCE', 'SIDEWALK', 'PARK PROPERTY', 'APARTME
 'CREDIT UNION', 'GOVERNMENT BUILDING', 'HORSE STABLE', 'YMCA',
 'DRIVEWAY', 'RETAIL STORE', 'GARAGE/AUTO REPAIR']
 
-var domestic_abuse = [false,  true]
+var domestic_abuse = [0,  1]
 
 var fbi_codes = ['01A', '08B', '18', '04A', '04B', '6', '3', '26', '15', '14', '7',
 '5', '11', '20', '2', '08A', '17', '24', '19', '10', '9', '16',

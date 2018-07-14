@@ -1,5 +1,8 @@
 # Dependencies
 import pandas as pd
+import pickle
+from sklearn.linear_model import LogisticRegression
+
 # Python SQL toolkit and Object Relational Mapper
 import sqlalchemy
 from sqlalchemy import create_engine, MetaData
@@ -290,10 +293,321 @@ def form_data():
     'Community_Area_Name_West Town',
     'Community_Area_Name_Woodlawn']
 
+    # CREATING EMPTY DATAFRAME TO HOLD CRIME INFO
+    crime_df = pd.DataFrame(columns=[
+    'Domestic',
+    'Beat',
+    'District',
+    'Ward',
+    'Community_Area',
+    'Primary_Type_ARSON',
+    'Primary_Type_ASSAULT',
+    'Primary_Type_BATTERY',
+    'Primary_Type_BURGLARY',
+    'Primary_Type_CONCEALED CARRY LICENSE VIOLATION',
+    'Primary_Type_CRIM SEXUAL ASSAULT',
+    'Primary_Type_CRIMINAL DAMAGE',
+    'Primary_Type_CRIMINAL TRESPASS',
+    'Primary_Type_DECEPTIVE PRACTICE',
+    'Primary_Type_GAMBLING',
+    'Primary_Type_HOMICIDE',
+    'Primary_Type_HUMAN TRAFFICKING',
+    'Primary_Type_INTERFERENCE WITH PUBLIC OFFICER',
+    'Primary_Type_INTIMIDATION',
+    'Primary_Type_KIDNAPPING',
+    'Primary_Type_LIQUOR LAW VIOLATION',
+    'Primary_Type_MOTOR VEHICLE THEFT',
+    'Primary_Type_NARCOTICS',
+    'Primary_Type_NON-CRIMINAL',
+    'Primary_Type_NON-CRIMINAL (SUBJECT SPECIFIED)',
+    'Primary_Type_OBSCENITY',
+    'Primary_Type_OFFENSE INVOLVING CHILDREN',
+    'Primary_Type_OTHER OFFENSE',
+    'Primary_Type_PROSTITUTION',
+    'Primary_Type_PUBLIC INDECENCY',
+    'Primary_Type_PUBLIC PEACE VIOLATION',
+    'Primary_Type_ROBBERY',
+    'Primary_Type_SEX OFFENSE',
+    'Primary_Type_STALKING',
+    'Primary_Type_THEFT',
+    'Primary_Type_WEAPONS VIOLATION',
+    'Location_Description_ABANDONED BUILDING',
+    'Location_Description_AIRCRAFT',
+    'Location_Description_AIRPORT BUILDING NON-TERMINAL - NON-SECURE AREA',
+    'Location_Description_AIRPORT BUILDING NON-TERMINAL - SECURE AREA',
+    'Location_Description_AIRPORT EXTERIOR - NON-SECURE AREA',
+    'Location_Description_AIRPORT EXTERIOR - SECURE AREA',
+    'Location_Description_AIRPORT PARKING LOT',
+    'Location_Description_AIRPORT TERMINAL LOWER LEVEL - NON-SECURE AREA',
+    'Location_Description_AIRPORT TERMINAL LOWER LEVEL - SECURE AREA',
+    'Location_Description_AIRPORT TERMINAL MEZZANINE - NON-SECURE AREA',
+    'Location_Description_AIRPORT TERMINAL UPPER LEVEL - NON-SECURE AREA',
+    'Location_Description_AIRPORT TERMINAL UPPER LEVEL - SECURE AREA',
+    'Location_Description_AIRPORT TRANSPORTATION SYSTEM (ATS)',
+    'Location_Description_AIRPORT VENDING ESTABLISHMENT',
+    'Location_Description_AIRPORT/AIRCRAFT',
+    'Location_Description_ALLEY',
+    'Location_Description_ANIMAL HOSPITAL',
+    'Location_Description_APARTMENT',
+    'Location_Description_APPLIANCE STORE',
+    'Location_Description_ATHLETIC CLUB',
+    'Location_Description_ATM (AUTOMATIC TELLER MACHINE)',
+    'Location_Description_AUTO',
+    'Location_Description_AUTO / BOAT / RV DEALERSHIP',
+    'Location_Description_BANK',
+    'Location_Description_BAR OR TAVERN',
+    'Location_Description_BARBERSHOP',
+    'Location_Description_BOAT/WATERCRAFT',
+    'Location_Description_BOWLING ALLEY',
+    'Location_Description_BRIDGE',
+    'Location_Description_CAR WASH',
+    'Location_Description_CEMETARY',
+    'Location_Description_CHA APARTMENT',
+    'Location_Description_CHA GROUNDS',
+    'Location_Description_CHA HALLWAY/STAIRWELL/ELEVATOR',
+    'Location_Description_CHA PARKING LOT/GROUNDS',
+    'Location_Description_CHURCH/SYNAGOGUE/PLACE OF WORSHIP',
+    'Location_Description_CLEANING STORE',
+    'Location_Description_COIN OPERATED MACHINE',
+    'Location_Description_COLLEGE/UNIVERSITY GROUNDS',
+    'Location_Description_COLLEGE/UNIVERSITY RESIDENCE HALL',
+    'Location_Description_COMMERCIAL / BUSINESS OFFICE',
+    'Location_Description_CONSTRUCTION SITE',
+    'Location_Description_CONVENIENCE STORE',
+    'Location_Description_CREDIT UNION',
+    'Location_Description_CTA BUS',
+    'Location_Description_CTA BUS STOP',
+    'Location_Description_CTA GARAGE / OTHER PROPERTY',
+    'Location_Description_CTA PLATFORM',
+    'Location_Description_CTA PROPERTY',
+    'Location_Description_CTA STATION',
+    'Location_Description_CTA TRACKS - RIGHT OF WAY',
+    'Location_Description_CTA TRAIN',
+    'Location_Description_CURRENCY EXCHANGE',
+    'Location_Description_DAY CARE CENTER',
+    'Location_Description_DEPARTMENT STORE',
+    'Location_Description_DRIVEWAY',
+    'Location_Description_DRIVEWAY - RESIDENTIAL',
+    'Location_Description_DRUG STORE',
+    'Location_Description_FACTORY/MANUFACTURING BUILDING',
+    'Location_Description_FARM',
+    'Location_Description_FEDERAL BUILDING',
+    'Location_Description_FIRE STATION',
+    'Location_Description_FOREST PRESERVE',
+    'Location_Description_GARAGE',
+    'Location_Description_GARAGE/AUTO REPAIR',
+    'Location_Description_GAS STATION',
+    'Location_Description_GOVERNMENT BUILDING',
+    'Location_Description_GOVERNMENT BUILDING/PROPERTY',
+    'Location_Description_GROCERY FOOD STORE',
+    'Location_Description_HALLWAY',
+    'Location_Description_HIGHWAY/EXPRESSWAY',
+    'Location_Description_HORSE STABLE',
+    'Location_Description_HOSPITAL BUILDING/GROUNDS',
+    'Location_Description_HOTEL',
+    'Location_Description_HOTEL/MOTEL',
+    'Location_Description_HOUSE',
+    'Location_Description_JAIL / LOCK-UP FACILITY',
+    'Location_Description_LAKEFRONT/WATERFRONT/RIVERBANK',
+    'Location_Description_LIBRARY',
+    'Location_Description_LIQUOR STORE',
+    'Location_Description_MEDICAL/DENTAL OFFICE',
+    'Location_Description_MOVIE HOUSE/THEATER',
+    'Location_Description_NEWSSTAND',
+    'Location_Description_NURSING HOME/RETIREMENT HOME',
+    'Location_Description_OTHER',
+    'Location_Description_OTHER COMMERCIAL TRANSPORTATION',
+    'Location_Description_OTHER RAILROAD PROP / TRAIN DEPOT',
+    'Location_Description_PARK PROPERTY',
+    'Location_Description_PARKING LOT',
+    'Location_Description_PARKING LOT/GARAGE(NON.RESID.)',
+    'Location_Description_PAWN SHOP',
+    'Location_Description_POLICE FACILITY/VEH PARKING LOT',
+    'Location_Description_POOL ROOM',
+    'Location_Description_PORCH',
+    'Location_Description_RESIDENCE',
+    'Location_Description_RESIDENCE PORCH/HALLWAY',
+    'Location_Description_RESIDENCE-GARAGE',
+    'Location_Description_RESIDENTIAL YARD (FRONT/BACK)',
+    'Location_Description_RESTAURANT',
+    'Location_Description_RETAIL STORE',
+    'Location_Description_SAVINGS AND LOAN',
+    'Location_Description_SCHOOL, PRIVATE, BUILDING',
+    'Location_Description_SCHOOL, PRIVATE, GROUNDS',
+    'Location_Description_SCHOOL, PUBLIC, BUILDING',
+    'Location_Description_SCHOOL, PUBLIC, GROUNDS',
+    'Location_Description_SIDEWALK',
+    'Location_Description_SMALL RETAIL STORE',
+    'Location_Description_SPORTS ARENA/STADIUM',
+    'Location_Description_STREET',
+    'Location_Description_TAVERN/LIQUOR STORE',
+    'Location_Description_TAXICAB',
+    'Location_Description_VACANT LOT',
+    'Location_Description_VACANT LOT/LAND',
+    'Location_Description_VEHICLE - DELIVERY TRUCK',
+    'Location_Description_VEHICLE - OTHER RIDE SHARE SERVICE (E.G., UBER, LYFT)',
+    'Location_Description_VEHICLE NON-COMMERCIAL',
+    'Location_Description_VEHICLE-COMMERCIAL',
+    'Location_Description_VEHICLE-COMMERCIAL - ENTERTAINMENT/PARTY BUS',
+    'Location_Description_VEHICLE-COMMERCIAL - TROLLEY BUS',
+    'Location_Description_WAREHOUSE',
+    'Location_Description_YARD',
+    'Location_Description_YMCA',
+    'FBI_Code_01A',
+    'FBI_Code_01B',
+    'FBI_Code_04A',
+    'FBI_Code_04B',
+    'FBI_Code_08A',
+    'FBI_Code_08B',
+    'FBI_Code_10',
+    'FBI_Code_11',
+    'FBI_Code_12',
+    'FBI_Code_13',
+    'FBI_Code_14',
+    'FBI_Code_15',
+    'FBI_Code_16',
+    'FBI_Code_17',
+    'FBI_Code_18',
+    'FBI_Code_19',
+    'FBI_Code_2',
+    'FBI_Code_20',
+    'FBI_Code_22',
+    'FBI_Code_24',
+    'FBI_Code_26',
+    'FBI_Code_3',
+    'FBI_Code_5',
+    'FBI_Code_6',
+    'FBI_Code_7',
+    'FBI_Code_9',
+    'Community_Area_Name_Albany Park',
+    'Community_Area_Name_Archer Heights',
+    'Community_Area_Name_Armour Square',
+    'Community_Area_Name_Ashburn',
+    'Community_Area_Name_Auburn Gresham',
+    'Community_Area_Name_Austin',
+    'Community_Area_Name_Avalon Park',
+    'Community_Area_Name_Avondale',
+    'Community_Area_Name_Belmont Cragin',
+    'Community_Area_Name_Beverly',
+    'Community_Area_Name_Bridgeport',
+    'Community_Area_Name_Brighton Park',
+    'Community_Area_Name_Burnside',
+    'Community_Area_Name_Calumet Heights',
+    'Community_Area_Name_Chatham',
+    'Community_Area_Name_Chicago Lawn',
+    'Community_Area_Name_Clearing',
+    'Community_Area_Name_Douglas',
+    'Community_Area_Name_Dunning',
+    'Community_Area_Name_East Garfield Park',
+    'Community_Area_Name_East Side',
+    'Community_Area_Name_Edgewater',
+    'Community_Area_Name_Edison Park',
+    'Community_Area_Name_Englewood',
+    'Community_Area_Name_Forest Glen',
+    'Community_Area_Name_Fuller Park',
+    'Community_Area_Name_Gage Park',
+    'Community_Area_Name_Garfield Ridge',
+    'Community_Area_Name_Grand Boulevard',
+    'Community_Area_Name_Greater Grand Crossing',
+    'Community_Area_Name_Hegewisch',
+    'Community_Area_Name_Hermosa',
+    'Community_Area_Name_Humboldt Park',
+    'Community_Area_Name_Hyde Park',
+    'Community_Area_Name_Irving Park',
+    'Community_Area_Name_Jefferson Park',
+    'Community_Area_Name_Kenwood',
+    'Community_Area_Name_Lake View',
+    'Community_Area_Name_Lincoln Park',
+    'Community_Area_Name_Lincoln Square',
+    'Community_Area_Name_Logan Square',
+    'Community_Area_Name_Loop',
+    'Community_Area_Name_Lower West Side',
+    'Community_Area_Name_McKinley Park',
+    'Community_Area_Name_Montclaire',
+    'Community_Area_Name_Morgan Park',
+    'Community_Area_Name_Mount Greenwood',
+    'Community_Area_Name_Near North Side',
+    'Community_Area_Name_Near South Side',
+    'Community_Area_Name_Near West Side',
+    'Community_Area_Name_New City',
+    'Community_Area_Name_North Center',
+    'Community_Area_Name_North Lawndale',
+    'Community_Area_Name_North Park',
+    'Community_Area_Name_Norwood Park',
+    "Community_Area_Name_O'Hare",
+    'Community_Area_Name_Oakland',
+    'Community_Area_Name_Portage Park',
+    'Community_Area_Name_Pullman',
+    'Community_Area_Name_Riverdale',
+    'Community_Area_Name_Rogers Park',
+    'Community_Area_Name_Roseland',
+    'Community_Area_Name_South Chicago',
+    'Community_Area_Name_South Deering',
+    'Community_Area_Name_South Lawndale',
+    'Community_Area_Name_South Shore',
+    'Community_Area_Name_Uptown',
+    'Community_Area_Name_Washington Heights',
+    'Community_Area_Name_Washington Park',
+    'Community_Area_Name_West Elsdon',
+    'Community_Area_Name_West Englewood',
+    'Community_Area_Name_West Garfield Park',
+    'Community_Area_Name_West Lawn',
+    'Community_Area_Name_West Pullman',
+    'Community_Area_Name_West Ridge',
+    'Community_Area_Name_West Town',
+    'Community_Area_Name_Woodlawn'])
+
+    # PULLING IN FORM INPUT NUMERICAL DATA
+    domestic_input = request.form["domestic"]
+    beat_input = request.form["beats"]
+    district_input = request.form["districts"]
+    ward_input = request.form["wards"]
+    community_num_input = request.form["community_number"]
+
+    #ADDING STRINGS TO INPUT CATEGORICAL DATA TO MUCH COLUMN NAME IN EMPTY DF
     crime_name = request.form['selDataset']
     crime ="Primary_Type_" + crime_name 
 
-    return jsonify(crime)
+    ca_name_input = request.form['community_areas']
+    ca_name = "Community_Area_Name_" + ca_name_input
+
+    loc_descript_input = request.form['locations']
+    loc_descript = "Location_Description_" + loc_descript_input
+
+    fbi_code_input = request.form['fbi_code']
+    fbi_code = "FBI_Code_" + fbi_code_input
+    
+
+
+    # INPUTING NUMERICA DATA INTO EMPYT DATA FRAME 
+    crime_df = crime_df.append({'Domestic':domestic_input,'Beat':beat_input,'District':district_input,'Ward':ward_input, 'Community_Area':community_num_input }, ignore_index=True)
+    last_index = (crime_df.index[-1])
+
+    crime_df.loc[last_index, crime] = 1
+    crime_df.loc[last_index, ca_name] = 1
+    crime_df.loc[last_index, loc_descript] = 1
+    crime_df.loc[last_index, fbi_code] = 1
+    crime_df.fillna(0, inplace=True)
+    
+    print(last_index)
+    
+    crime_json=crime_df.to_json(orient="records")
+    # last_index2 = last_index.to_json(orient="records") 
+
+    # BRINGING IN PICKLED FINAL LOGISITIC REGRESSION MODEL
+    with open('final_model.pickle', 'rb') as handle:
+        final_model = pickle.load(handle)
+
+    #USING FORM INPUT TO PREDICT ARREST
+    test_pred = final_model.predict(crime_df)
+
+    result = ""
+    if test_pred[0]:
+        result="It's likely this person WILL be arrested"
+    else:
+        result="Its likely this person WILL NOT be arrested"
+
+    return jsonify(result)
 
 
 
